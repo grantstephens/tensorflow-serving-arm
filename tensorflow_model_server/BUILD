@@ -43,6 +43,7 @@ cc_library(
         "@org_tensorflow//tensorflow/core/platform/hadoop:hadoop_file_system",
         "@org_tensorflow//tensorflow/core/platform/s3:s3_file_system",
         "@tf_serving//tensorflow_serving/model_servers:server_lib",
+        "@org_tensorflow_decision_forests//tensorflow_decision_forests/tensorflow/ops/inference:kernel_and_op",
     ],
 )
 

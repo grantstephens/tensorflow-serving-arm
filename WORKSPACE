@@ -62,7 +62,7 @@ protobuf_deps()
 
 # tensorflow/tensorflow and deps
 
-# tensorflow 2.6.0
+# tensorflow 2.6.2
 http_archive(
     name = "org_tensorflow",
     patches = [
@@ -81,10 +81,11 @@ http_archive(
         "//third_party/tensorflow:tensorflow.patch",
     ],
     patch_args = ["-p1"],
-    sha256 = "70a865814b9d773024126a6ce6fea68fefe907b7ae6f9ac7e656613de93abf87",
-    strip_prefix = "tensorflow-919f693420e35d00c8d0a42100837ae3718f7927",
+    sha256 = "add5982a3ce3b9964b7122dd0d28927b6a9d9abd8f95a89eda18ca76648a0ae8",
+    #sha256 = "70a865814b9d773024126a6ce6fea68fefe907b7ae6f9ac7e656613de93abf87",
+    strip_prefix = "tensorflow-c2363d6d025981c661f8cbecf4c73ca7fbf38caf",
     urls = [
-        "https://github.com/tensorflow/tensorflow/archive/919f693420e35d00c8d0a42100837ae3718f7927.tar.gz",
+        "https://github.com/tensorflow/tensorflow/archive/c2363d6d025981c661f8cbecf4c73ca7fbf38caf.tar.gz",
     ],
 )
 
@@ -116,19 +117,61 @@ http_archive(
     ],
 )
 
-# tensorflow serving 2.6.0
+# tensorflow serving 2.6.2
 http_archive(
     name = "tf_serving",
-    sha256 = "5fe87c899e2afea297dead1ee0e1709852ed55578b7975cffefe135f82b61c77",
-    strip_prefix = "serving-04d47f8aa567f429185a4416ef58f7fe11a21a43",
+    patches = [
+        #"//third_party/serving:build.patch",
+        #"//third_party/serving:workspace.patch",
+    ],
+    #sha256 = "5fe87c899e2afea297dead1ee0e1709852ed55578b7975cffefe135f82b61c77",
+    sha256 = "405a0c9784cafa5798db6a61938f4feb5ad0c62d9348bce03ffa1d2e367fc930",
+    strip_prefix = "serving-cc2f8d4a77dbb469e438286a0958cc4ba7235521",
     urls = [
-        "https://github.com/tensorflow/serving/archive/04d47f8aa567f429185a4416ef58f7fe11a21a43.tar.gz",
+        "https://github.com/tensorflow/serving/archive/cc2f8d4a77dbb469e438286a0958cc4ba7235521.tar.gz",
     ],
 )
 
 load("@tf_serving//tensorflow_serving:workspace.bzl", "tf_serving_workspace")
 
 tf_serving_workspace()
+
+# Import Yggdrasil Decision Forests.
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_archive(
+    name="ydf",
+    urls=[
+        "https://github.com/google/yggdrasil-decision-forests/archive/refs/tags/0.2.0.zip"],
+    strip_prefix="yggdrasil-decision-forests-0.2.0",
+    sha256 = "3a295aeece7267eda600866452e0edadf862b099dbb629080ff76ff289f10beb",
+)
+
+# Load the YDF dependencies. However, skip the ones already injected by
+# TensorFlow.
+load("@ydf//yggdrasil_decision_forests:library.bzl",
+     ydf_load_deps="load_dependencies")
+ydf_load_deps(
+    exclude_repo=[
+        "absl",
+        "protobuf",
+        "zlib",
+        "farmhash",
+        "gtest",
+        "tensorflow",
+        "grpc"
+    ],
+    repo_name="@ydf",
+)
+
+# Import TensorFlow Decision Forests.
+#load("//tensorflow_serving:repo.bzl", "tensorflow_http_archive")
+http_archive(
+    name="org_tensorflow_decision_forests",
+    urls=[
+        "https://github.com/tensorflow/decision-forests/archive/refs/tags/0.2.0.zip"],
+    strip_prefix="decision-forests-0.2.0",
+    sha256 = "ed0f245a757943a069635ab7674bf5782e53e2dc6ec74a98d3bf4069305a7d62",
+)
 
 load("@org_tensorflow//tensorflow:workspace3.bzl", "tf_workspace3")
 
